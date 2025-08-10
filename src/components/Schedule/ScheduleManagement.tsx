@@ -64,13 +64,11 @@ const ScheduleManagement: React.FC = () => {
 
   const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
   const timeSlotHours = [
-    '08:00-09:00',
-    '09:00-10:00',
-    '10:30-11:30',
-    '11:30-12:30',
-    '14:00-15:00',
-    '15:00-16:00',
-    '16:00-17:00'
+    '08:00-10:00',
+    '10:00-12:00',
+    '12:00-14:00',
+    '14:00-16:00',
+    '16:00-18:00'
   ];
 
   const classes = ['Maternelle 1A', 'Maternelle 1B', 'CI A', 'CP1', 'CP2', 'CE1A', 'CE2B', 'CM2A'];
@@ -320,7 +318,11 @@ const ScheduleManagement: React.FC = () => {
                     
                     return (
                       <td key={day} className="px-2 py-2 text-center">
-                        {schedule ? (
+                        {timeSlot === '12:00-14:00' ? (
+                          <div className="h-20 flex items-center justify-center bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+                            <span className="text-yellow-700 font-medium">Pause</span>
+                          </div>
+                        ) : schedule ? (
                           <div className={`p-3 rounded-lg border-2 ${getSubjectColor(schedule.subject)} cursor-pointer hover:shadow-md transition-all group`}>
                             <div className="font-medium text-sm mb-1">{schedule.subject}</div>
                             <div className="text-xs opacity-75 mb-1">

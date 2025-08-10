@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import { School } from 'lucide-react';
+import { SupabaseAuthProvider, useAuth } from './components/Auth/SupabaseAuthProvider';
+import SupabaseLoginPage from './components/Auth/SupabaseLoginPage';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
 import Sidebar from './components/Layout/Sidebar';
 import Header from './components/Layout/Header';
-import Dashboard from './components/Dashboard/Dashboard';
-import StudentManagement from './components/Students/StudentManagement';
+import SupabaseDashboard from './components/Dashboard/SupabaseDashboard';
+import SupabaseStudentManagement from './components/Students/SupabaseStudentManagement';
 import ClassManagement from './components/Classes/ClassManagement';
 import FinanceManagement from './components/Finance/FinanceManagement';
 import AcademicManagement from './components/Academic/AcademicManagement';
@@ -10,7 +14,8 @@ import TeacherManagement from './components/Teachers/TeacherManagement';
 import Settings from './components/Settings/Settings';
 import ScheduleManagement from './components/Schedule/ScheduleManagement';
 
-function App() {
+const AppContent: React.FC = () => {
+  const { isAuthenticated, loading } = useAuth();
   const [activeModule, setActiveModule] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -28,26 +33,79 @@ function App() {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <School className="h-8 w-8 text-blue-600 animate-pulse" />
+          </div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <SupabaseLoginPage />;
+  }
+
   const renderActiveModule = () => {
     switch (activeModule) {
       case 'dashboard':
-        return <Dashboard />;
+        return (
+          <ProtectedRoute>
+            <SupabaseDashboard />
+          </ProtectedRoute>
+        );
       case 'students':
-        return <StudentManagement />;
+        return (
+          <ProtectedRoute requiredPermission="students">
+            <SupabaseStudentManagement />
+          </ProtectedRoute>
+        );
       case 'classes':
-        return <ClassManagement />;
+        return (
+          <ProtectedRoute requiredPermission="classes">
+            <ClassManagement />
+          </ProtectedRoute>
+        );
       case 'finance':
-        return <FinanceManagement />;
+        return (
+          <ProtectedRoute requiredPermission="finance">
+            <FinanceManagement />
+          </ProtectedRoute>
+        );
       case 'academic':
-        return <AcademicManagement />;
+        return (
+          <ProtectedRoute requiredPermission="academic">
+            <AcademicManagement />
+          </ProtectedRoute>
+        );
       case 'teachers':
-        return <TeacherManagement />;
+        return (
+          <ProtectedRoute requiredPermission="teachers">
+            <TeacherManagement />
+          </ProtectedRoute>
+        );
       case 'settings':
-        return <Settings />;
+        return (
+          <ProtectedRoute requiredPermission="settings">
+            <Settings />
+          </ProtectedRoute>
+        );
       case 'schedule':
-        return <ScheduleManagement />;
+        return (
+          <ProtectedRoute requiredPermission="schedule">
+            <ScheduleManagement />
+          </ProtectedRoute>
+        );
       default:
-        return <Dashboard />;
+        return (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        );
     }
   };
 
@@ -82,6 +140,14 @@ function App() {
         </main>
       </div>
     </div>
+  );
+};
+
+function App() {
+  return (
+    <SupabaseAuthProvider>
+      <AppContent />
+    </SupabaseAuthProvider>
   );
 }
 
